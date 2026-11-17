@@ -1,0 +1,236 @@
+                                                       ==============================================
+                                                                #Reading Files In DataBricks
+                                                       ==============================================
+
+🎮dbutils.fs.ls('/Volumes/workspace/schema/filepath')
+🎮dbutils.fs.ls('/Volumes/workspace/pyspark_code/my_data(spark)')  (⓿_⓿) """ ---This Shows The Files IN The FilesPath """
+
+   ======================
+🗿 READING CSV files
+   ======================
+  """Code: Reading File In CSV Formats """
+🎮df = spark.read.format('csv').option('inferSchema',True).option('header',True).load('/Volumes/workspace/schema/FilePath/File.csv')
+🎮df = spark.read.format('csv')\
+            .option('inferSchema',True)\
+            .option('header',True)\
+            .load('/Volumes/workspace/pyspark_code/my_data(spark)/BigMart Sales.csv')
+
+  ======================
+🗿 READING JSON files
+   ======================
+"""Code: Reading File In JSON Formats """
+ 🎮 spark.read.format('json')\
+          .option('inferSchema',True)\
+          .option('header',True)\
+          .option('multiline',False)\
+          .load('/Volumes/workspace/schema/FilePath/File.json')\
+          .display()
+
+
+==============================================
+## SCHEMA DEFINITION  :  """ defining data schema inside the Table """
+==============================================
+📍Step 1 : 🎮 df.printSchema()
+📍Step 2 : """ type of schema to use"""
+   ======================
+🗿 DDL SCHEMA
+   ======================
+   my_ddl_schema = '''
+                      Item_Identifier STRING,          "
+                      Item_Weight STRING,                  "
+                      Item_Fat_Content STRING,                "
+                      Item_Visibility DOUBLE,                      "
+                      Item_Type STRING,                               "
+                      Item_MRP DOUBLE,                                         "   🔗   """ x = "Column Schema_Type Changed" """
+                      Outlet_Identifier STRING,                        "
+                      Outlet_Establishment_Year INT,                "
+                      Outlet_Size STRING,                      "
+                      Outlet_Location_Type STRING,         "
+                      Outlet_Type STRING,                "
+                      Item_Outlet_Sales DOUBLE       
+          
+                '''
+📍Step 3 :"""  Passing Changed Schema Variable X into DF"""
+🎮df = spark.read.format('csv')\
+          .schema(my_ddl_schema)\
+          .option('header',True)\
+          .load('/Volumes/workspace/schema/FilePath/File')
+
+📍 Step 4 :  """  A different Schema Type"""
+   ======================
+🗿 STRUCtTYPE SCHEMA
+   ======================
+            from pyspark.sql.types import *
+            from pyspark.sql.functions import *   """ 📍(Neccessary imports) """
+
+🧐 """ X = StructType([StructField('Col 1',StringType(),True),StructField('Col 2',IntegerType(),True), etc]) """
+    🎮my_strct_schema = StructType([
+                            StructField('Item_Identifier',StringType(),True),
+                            StructField('Item_Weight',StringType(),True),
+                            StructField('Item_Fat_Content',StringType(),True),
+                            StructField('Item_Visibility',StringType(),True),
+                            StructField('Item_Type',StringType(),True),
+                            StructField('Item_MRP',StringType(),True),
+                            StructField('Outlet_Identifier',StringType(),True),
+                            StructField('Outlet_Establishment_Year',IntegerType(),True),
+                            StructField('Outlet_Size',StringType(),True),
+                            StructField('Outlet_Location_Type',StringType(),True),
+                            StructField('Outlet_Type',StringType(),True),
+                            StructField('Item_Outlet_Sales',StringType(),True)
+                            ])
+                            
+  🎮 df = spark.read.format('csv')\
+          .schema(my_strct_schema)\
+          .option('header',True)\
+          .load('/Volumes/workspace/pyspark_code/my_data(spark)/BigMart Sales.csv')
+
+
+
+                                                      ==============================================
+                                                            #Data Transformation In DataBricks
+                                                      ==============================================
+
+=====================
+# SELECT  :  """ Using Select inside Databricks """
+=====================
+
+   ----------------------
+🗿 SCENARIO 1  """ Assigning SELECT To a variable"""
+   ----------------------
+
+🎮 df_selt = df.select("Item_Identifier","Item_Weight","Item_Fat_Content").display()
+
+#Or
+
+   ----------------------
+🗿 SCENARIO 2  """ Quering SELECT To an Existing variable and Multiple Columns"""
+   ----------------------
+
+df.select(col("Item_Identifier"),col("Item_Weight"),col("Item_Fat_Content")).display()
+
+
+==============================================
+# ALIAS  :  """ Using Alias() in Renaming Columns """
+==============================================
+
+🎮 df.select(col("Col 1").alias('Col 1: New Name')).display()
+
+==============================================
+# WHERE  :  """ Using WHERE() in Filtering Columns """
+==============================================
+""" 📍 $ Filtering Fat Content = Regular
+    📍$ Slicing the Data with item Type = Soft Drinks & Weight < 10
+    📍$ Fetching the data with Tier in (Tier1 or Tier 2) and Outlet Size is NULL """
+
+   -----------------------
+🗿 WHERE() Scenario 1
+   -----------------------
+
+🎮  df.filter(col("Col 1")=='variable name').display()
+🎮  df.filter(col("Item_Fat_Content")=='Regular').display()
+
+   -----------------------
+🗿 WHERE() Scenario 2  """ Multi-Column Filtering """
+   -----------------------
+
+🎮  df.filter((col("Col 1")=='Soft Drinks') & (col("Col 2")<10)).display()
+
+   -----------------------
+🗿 WHERE() Scenario 3   utilise .isin() & .isNull()   """ Multi-Column Filtering """
+   -----------------------
+
+🎮  df.filter((col("Outlet_Size").isNull() & col("Outlet_Location_Type").isin('Tier 1','Tier 2'))).display()
+
+
+==============================================
+# withColumnedRenamed()  :  """ Using withColumnedRenamed()() in Transforming Columns """
+==============================================
+
+🎮  df.withColumnRenamed("Item_Weight","Item_WT").display()
+
+==============================================
+# withColumned()  :  """ Using withColumned() in Transforming Columns and regexp_replace() """
+==============================================
+
+  --------------------------------------------
+🗿 Scenario 1 : Creating New Column And Populating It
+  --------------------------------------------
+from pyspark.sql.functions import *   """ Needed Imports"""
+
+🎮   df.withColumn('flag',lit("New")).display()
+
+  --------------------------------------------
+🗿 Scenario 2 : Creating New Column with Transformed values
+  --------------------------------------------
+
+🎮  df.withColumn('multiply',col("Item_Weight")*col("Item_MRP")).display()
+
+  --------------------------------------------
+🗿 Scenario 3 : Modifying Existing Column Content
+  --------------------------------------------
+
+🎮  df.withColumn('Item_Fat_Content',regexp_replace(col("Item_Fat_Content"), "Regular", "Reg"))\
+.withColumn('Item_Fat_Content',regexp_replace(col("Item_Fat_Content"), "Low Fat","Lf")).display()
+
+
+==============================================
+# Type Casting : cast()  """ Using cast() in Transforming Table Schema """
+==============================================
+
+"""
+📍df1 = df.withColumn('Col 1',col("Col 1").cast(StringType()))
+                                           .cast(IntegerType()))
+                                           .cast(FloatType()))
+                                           .cast(DoubleType()))
+                                                                 """
+🎮    df1 = df.withColumn('Item_weight',col("Item_Weight").cast(StringType()))
+
+
+==============================================
+# sort/OrderBy()  """ Using Sort () in Transforming Columns Data """
+==============================================
+
+
+  --------------------------------------------
+🗿 Scenario 1 : Sorting Columns Data In Ascending And Descending Order
+  --------------------------------------------
+
+🎮  df.sort(col("Col 1").desc()).display()
+
+#OR
+
+🎮  df.sort(col("Col 2").asc()).display()
+
+   -------------------------
+🗿  Scenario 3 et 4
+    Multi Sort
+   -------------------------
+📍   df.sort(["Col 1","Col 1"],ascending = [true:0,true:0 or false:1]).display()
+
+🎮  df.sort(["Item_Weight","Item_Visibility"],ascending = [0,0]).display()
+
+ #OR
+
+🎮  df.sort(["Item_Weight","Item_Visibility"],ascending = [0,1]).display()
+
+
+==============================================
+# LIMIT ()  """ Using limit() in getting Limited Columns From Table """
+==============================================
+
+🎮   df.limit(11).display()
+
+==============================================
+# DROP ()  """ Using drop() in removing Columns from Table """
+==============================================
+
+  --------------------
+🗿 Scenario 1 et 2
+  --------------------
+
+     📍 df.drop("Col 1").display()
+🎮 df.drop("Item_Visibility").display()
+
+#OR  """ Multi-Column drop"""
+
+🎮 df.drop("Item_Visibility","Item_MRP").display()
