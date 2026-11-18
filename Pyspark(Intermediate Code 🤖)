@@ -1,0 +1,114 @@
+                                                       ==============================================
+                                                              #Data Transformation In DataBricks 🧱
+                                                       ==============================================
+
+🎮df = spark.read.format('csv')\
+    .option('inferSchema',True)\
+        .option('header',True)\
+            .load('/Volumes/workspace/pyspark_code/my_data(spark)/BigMart Sales.csv')  """ ---This returns the Data to work with """
+
+   ----------------------
+🗿 Import Neccessary for the module
+   ``````````````````````
+ 🎮 from pyspark.sql.functions import *                """Code: Import for this Module """
+
+
+  ======================
+🗿 Working with Strings  |====
+    Strings Functions     |====
+  ======================
+📍 Initcap()
+🎮 df.select(initcap(col('Item_Type'))).display()
+
+📍 Upper() and Lower()
+🎮 df.select(upper(col("Item_Type").alias("Upper_Item_Type"))).display()
+            #Or
+🎮 df.select(lower(col('Item_Type').alias("lower_Item_Type"))).display()
+
+
+  =======================
+🗿Date Functions()
+  Current_Date()
+  Date_Add()
+  Date_Sub()
+  ========================
+📍Date_Add()
+  Date_Sub()
+🎮 df = df.withColumn('curr_Date',current_date())  #Date-Add()                          """this fn() adds current date column to existing data """
+    
+🎮 df.withColumn('week after',date_add('curr_date',7))  #Date_Add()                     """this adds 7 days to a specific date col and displays it as a new col """
+        #or
+🎮df = df.withColumn('week_after',date_add('curr_date',+7))  #Date_Add()
+
+🎮 df.withColumn('week_before',date_sub('curr_date',7))  #Date_Sub()                    """this deducts any amount of days from a date col: 7 in this case """
+        #Or
+🎮 df = df.withColumn('week_before',date_add('curr_date',-7))                           """Another way to do dat ☝🏽 """
+
+📍Date_Diff()
+🎮 df = df.withColumn('datediff',datediff('week_after','curr_Date'))                    """This fn() returns difference btw two date col"""
+
+📍DATE_FORMAT()
+🎮 df = df.withColumn('week_before',date_format('week_before','dd-MM-yyyy'))            """This fn() corrects a date format to any desired one"""
+
+
+  ======================
+🗿Handling NULLS
+   Dropping Nulls et Filling Nulls
+  ======================
+🎮 df.dropna('all').display()                                                           """Drops A row with all Nulls"""
+
+🎮 df.dropna('any').display()                                                           """Drops A row with any Nulls""" 
+
+🎮 df.dropna(subset=["Outlet_Size"]).display()                                          """drops nulls in a specific column"""
+
+📍 Filling Nulls
+🎮 df.fillna('NotAvailable').display()                                                  """Replaces Null With Specified value ('NotAvailable') in this case"""
+
+🎮 df.fillna('NotAvailable',subset=["Outlet_Size"]).display()                           """Fills specific column nulls with specified value"""
+
+
+  =======================
+🗿Split Et Indexing
+  Split()
+  =======================
+🎮  df.withColumn('Outlet_Type',split('Outlet_Type',' ')).display()                        """splits by delimiters"""
+
+📍Indexing
+🎮  df.withColumn('Outlet_Type',split('Outlet_Type',' ')[0]).display()                      """Splits by Index"""
+
+📍EXPLODE
+🎮 df_exp = df.withColumn('Outlet_Type',split('Outlet_Type',' '))                            """Using a new df"""
+    df_exp.display()
+
+🎮 df_exp.withColumn('Outlet_Type',explode('Outlet_Type')).display()
+
+
+  ====================
+🗿 Array_Contains :  """Checks if a column contains exactly a specific object"""
+  ====================
+🎮  df_exp.withColumn('new-col name',array_contains('Outlet_Type','Type1')).display()
+
+
+  =====================
+🗿 Group_BY()
+  =====================
+🎮 df.groupby('Item_Type').agg(sum('Item_MRP')).display()                                         # Scenario 1
+
+🎮 df.groupby('Item_Type').agg(avg('Item_MRP')).display()                                         # Scenario 2
+
+🎮 df.groupBy('Item_Type','Outlet_Size').agg(sum('Item_MRP').alias('Total_MRP')).display()        ## Scenario 3
+
+🎮 df.groupBy('Item_Type','Outlet_Size').agg(sum('Item_MRP'),avg('Item_MRP')).display()           ## Scenario 4|
+
+
+
+
+
+
+
+
+
+
+
+
+
