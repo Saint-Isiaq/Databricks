@@ -90,7 +90,7 @@
 
 
   =====================
-🗿 Group_BY()
+🗿 Group_BY()     """Works similarly as GroupBy in Sql"""
   =====================
 🎮 df.groupby('Item_Type').agg(sum('Item_MRP')).display()                                         # Scenario 1
 
@@ -99,6 +99,96 @@
 🎮 df.groupBy('Item_Type','Outlet_Size').agg(sum('Item_MRP').alias('Total_MRP')).display()        ## Scenario 3
 
 🎮 df.groupBy('Item_Type','Outlet_Size').agg(sum('Item_MRP'),avg('Item_MRP')).display()           ## Scenario 4|
+
+                  ========================
+               🗿Collect_List fn()
+                 'Falls under the groupBy Fn()'
+                  ========================
+                ### Creating a New DataFrame
+🎮 data = [('User1','book1')
+          ,('User1','book2')
+          ,('User2','book2')
+          ,('User2','book4')
+          ,('User3','book1')]
+
+schema = 'User string, book string'
+
+df_book = spark.createDataFrame(data,schema)
+df_book.display()
+
+🎮 df_book.groupBy('User').agg(collect_list('book')).display()                               """It returns group of data as a collection"""
+
+
+                    ===============
+                  🗿PIVOT()
+                    ===============
+🎮 df.groupBy('Item_Type').pivot('Outlet_Size').agg(avg('Item_MRP')).display()                 """It returns an average of a column pivoted"""
+
+
+                   ====================
+                🗿 WHEN-OTHERWISE()   
+                   ====================
+🎮 df= df.withColumn('veg_flag',when(col('Item_Type')=='Meat','Non_veg').otherwise('Veg'))      """Usage similar to Case-when of SQL"""
+   df.display()                                                                                  ## Scenario 1
+
+🎮 df = df.withColumn('veg_exp_flag',when(((col('veg_flag')=='Veg') & (col('Item_MRP')<100)),'veg_inexpensive')\
+                               .when((col('veg_flag')=='Veg') & (col('Item_MRP')>100),'veg_Expensive')\
+                               .otherwise('Non_veg'))                                                        
+   df.display()                                                                                    ## Scenario 2 
+
+
+   ===================
+🗿 Joins fn()
+     INNER JOIN ()
+     RIGHT JOIN ()
+     FULL JOIN  ()
+     ANTI JOIN  ()
+   ===================
+                     #! NEW DATA SET FOR JOINS
+
+🎮 datas1 = [ (1,'sai','d01')
+          ,(2,'ain','d02')
+          ,(3,'int','d03')
+          ,(4,'san','d03')
+          ,(5,'sat','d05')
+            ]
+schemas1 = 'emp_ID STRING,emp_Name STRING,dept_ID STRING'
+df1 = spark.createDataFrame(datas1,schemas1)
+
+🎮 datas2  = [ ('d01','HR')
+           ,('d02','Marketing')
+           ,('do3','Accounts')
+           ,('do4','IT')
+           ,('d05','Finance')
+             ]
+
+schemas2 = 'dept_ID STRING,department STRING'
+df2 = spark.createDataFrame(datas2,schemas2)
+
+
+                              --------------------------------------------
+📍  #! INNER JOIN
+🎮  df1.join(df2,df1['dept_ID']==df2['dept_ID'],'inner').display()                                 """Follows same logic as SQL inner join"""
+
+📍 #! FULL OUTER JOIN
+🎮 df1.join(df2,df1['dept_ID']==df2['dept_ID'],'outer').display()                                   """Follows same logic as SQL full outer join"""
+
+📍 #! LEFT JOIN
+🎮 df1.join(df2,df1['dept_ID']==df2['dept_ID'],'left').display()                                    """Follows same logic as SQL left join"""
+
+📍 #! RIGHT JOIN
+🎮 df1.join(df2,df1['dept_ID']==df2['dept_ID'],'right').display()                                   """Follows same logic as SQL right join"""
+
+📍 # ANTI-JOIN ()
+🎮 df1.join(df2,df1['dept_ID']==df2['dept_ID'],'anti').display()                                    """Follows same logic as SQL Anti join"""
+
+
+
+
+
+
+
+
 
 
 
